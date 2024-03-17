@@ -1,0 +1,7 @@
+# intial requirements
+openai
+requests
+python-dotenv
+
+# to create colours in the console
+colorama
