@@ -2,3 +2,4 @@ colorama
 logger
 setuptools
 requests
+python-dotenv
