@@ -1,5 +1,9 @@
 #!/bin/bash
 
+### Copy Script
+# From the project directory run this in the console
+# cp tkr_env/start_env.copyToParent ./start_env
+
 # Function to display help message
 display_help() {
     echo "Usage: $0 [OPTIONS]"
