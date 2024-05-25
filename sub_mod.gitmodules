@@ -1,0 +1,3 @@
+[submodule "tkr_env"]
+	path = tkr_env
+	url = https://github.com/tuckertucker/tkr_env
