@@ -5,7 +5,7 @@ display_help() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo "  -h, --help           Display this help message"
-    echo "  --env-name NAME      Specify the name of the virtual environment (default: project_env). If you change it be sure to update the .gitignore"
+    echo "  --env NAME           Specify the name of the virtual environment (default: project_env). If you change it be sure to update the .gitignore"
     echo "  --python-path PATH   Specify the directory to add to the Python path"
     echo "  --base-dir PATH      Specify the base directory path (default: current directory)"
 }
@@ -22,6 +22,16 @@ add_python_path() {
     fi
 }
 
+# Function to add the virtual environment name to .gitignore
+add_to_gitignore() {
+    if ! grep -qx "$env_name" ".gitignore"; then
+        echo -e "\e[38;5;208mAdding '$env_name' to .gitignore\e[0m"
+        echo "$env_name" >> ".gitignore"
+    else
+        echo -e "\e[38;5;208m'$env_name' is already in .gitignore\e[0m"
+    fi
+}
+
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -30,7 +40,7 @@ while [[ $# -gt 0 ]]; do
             display_help
             exit 0
             ;;
-        --env-name)
+        --env)
             env_name="$2"
             shift
             shift
@@ -73,6 +83,9 @@ else
     # Create the virtual environment if it does not exist
     python3 -m venv $env_name
     echo -e "\e[38;5;208mCreated '$env_name'.\e[0m"
+
+    # Add the virtual environment name to .gitignore
+    add_to_gitignore
 
     # Define a timeout in seconds and polling interval (e.g., half a second)
     timeout=300
