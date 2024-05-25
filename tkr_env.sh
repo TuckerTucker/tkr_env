@@ -5,7 +5,7 @@ display_help() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo "  -h, --help           Display this help message"
-    echo "  --env-name NAME      Specify the name of the virtual environment (default: indexify_env). If you change it be sure to update the .gitignore"
+    echo "  --env-name NAME      Specify the name of the virtual environment (default: project_env). If you change it be sure to update the .gitignore"
     echo "  --python-path PATH   Specify the directory to add to the Python path"
     echo "  --base-dir PATH      Specify the base directory path (default: current directory)"
 }
@@ -53,10 +53,14 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Get the absolute path of the script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+project_directory="$(dirname "$SCRIPT_DIR")"
+
 # Set default values if not provided
 env_name=${env_name:-project_env} # 'project_env' is the default name
-base_dir=${base_dir:-$(pwd)} # adds the current working directory as base directory. Use call the script from outside of 
-python_path=${python_path:-$base_dir/indexify-extractors}
+base_dir=${base_dir:-$project_directory} # sets the project directory as base directory
+python_path=${python_path:-$base_dir}
 
 # Check if the virtual environment already exists
 if [ -d "$env_name" ]; then
@@ -64,7 +68,7 @@ if [ -d "$env_name" ]; then
     echo -e "\e[38;5;208mActivated '$env_name'.\e[0m"
     
     # Call the function to check and add Python path
-    # add_python_path
+    add_python_path
 else
     # Create the virtual environment if it does not exist
     python3 -m venv $env_name
@@ -89,7 +93,6 @@ else
             else
                 # Install requirements from env_requirements
                 echo -e "\e[38;5;208mInstalling requirements from env_requirements\e[0m"
-                #pip install --no-cache-dir -r -q "env_requirements" > /dev/null 2>&1 &
                 pip install --no-cache-dir -r "env_requirements" > /dev/null 2>&1 &
 
                 while kill -0 $! 2> /dev/null; do
@@ -99,21 +102,17 @@ else
                 echo "\n"
 
                 # Call the function to check and add Python path
-                # add_python_path
+                add_python_path
             fi
             break
         else
             echo -e "\e[38;5;208mWaiting for the virtual environment to be ready...\e[0m"
             sleep $poll_interval
-            elapsed=$(echo "$elapsed + $poll_interval" | bc)
+            elapsed=$((elapsed + poll_interval))
         fi
     done
-fi
 
-# Check if the virtual environment is activated
-if [[ -n "$VIRTUAL_ENV" ]]; then
-    echo -e "\e[38;5;208mVirtual environment '$env_name' is activated.\e[0m"
-else
-    echo -e "\e[38;5;201mFailed to activate the virtual environment '$env_name'.\e[0m"
-    exit 1
+    if [ $elapsed -ge $timeout ]; then
+        echo -e "\e[38;5;201mTimeout reached. The virtual environment was not activated.\e[0m"
+    fi
 fi
