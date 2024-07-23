@@ -108,6 +108,10 @@ else
                 echo -e "\e[38;5;201mThe virtual environment is not activated properly. Please check the environment.\e[0m"
                 break
             else
+                # Update pip
+                echo -e "\e[38;5;208mUpdating pip\e[0m"
+                pip install --upgrade pip > /dev/null 2>&1 &
+                
                 # Install requirements from env_requirements
                 echo -e "\e[38;5;208mInstalling requirements from env_requirements\e[0m"
                 pip install --no-cache-dir -r "env_requirements" > /dev/null 2>&1 &
