@@ -3,3 +3,4 @@ logger
 setuptools
 requests
 python-dotenv
+openai
