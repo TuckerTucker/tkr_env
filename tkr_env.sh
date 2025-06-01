@@ -110,17 +110,25 @@ else
             else
                 # Update pip
                 echo -e "\e[38;5;208mUpdating pip\e[0m"
-                pip install --upgrade pip > /dev/null 2>&1 &
+                pip install --upgrade pip > /dev/null 2>&1
                 
                 # Install requirements from env_requirements
                 echo -e "\e[38;5;208mInstalling requirements from env_requirements\e[0m"
-                pip install --no-cache-dir -r "env_requirements" > /dev/null 2>&1 &
-
-                while kill -0 $! 2> /dev/null; do
-                    echo -n '. '
-                    sleep $pip_interval
-                done
-                echo "\n"
+                
+                # Show progress with package names
+                total_packages=$(wc -l < "env_requirements" | tr -d ' ')
+                current_package=0
+                
+                while IFS= read -r package || [[ -n "$package" ]]; do
+                    # Skip empty lines and comments
+                    [[ -z "$package" || "$package" =~ ^[[:space:]]*# ]] && continue
+                    
+                    ((current_package++))
+                    printf "\r\e[38;5;208m  [%d/%d] Installing: %-20s\e[0m" "$current_package" "$total_packages" "$package"
+                    pip install --no-cache-dir "$package" > /dev/null 2>&1
+                done < "env_requirements"
+                
+                printf "\r\e[38;5;208m  ✓ All packages installed successfully!%-30s\e[0m\n" " "
 
                 # Call the function to check and add Python path
                 add_python_path
